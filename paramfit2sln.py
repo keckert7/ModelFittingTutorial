@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 """
-Created on Thu Feb 06 21:50:47 2014
-
-@author: sheila
+Part 2, third activity in Parameter Fitting Tutorial
+Modified by Katie Eckert from ASTR502 activity written by Sheila Kannappan
+June 24, 2015
 """
 
 import numpy as np
@@ -89,6 +88,7 @@ for i in xrange(gridsize1):  # loop over all possible values of alpha
         modelvals = alphaposs[i]*xvals+betaposs[j] # compute yfit for given model
         resids = (yvals - modelvals) # compute residuals for given grid model
         chisq = np.sum(resids**2 / errs**2) # compute chisq likelihood
+        #priorval=1.0                         # uniform prior
         priorval=(1.+betaposs[j]**2)**(-3./2.) # compute prior
         #lnlikes[i,j] = ? + ? 
         lnlikes[i,j]=-1.*chisq/2. + np.log(priorval) # plus a constant, will normalize out later
@@ -119,13 +119,5 @@ plt.plot(betaposs,marginalizedlikes_yint,'g.',markersize=10)
 plt.xlabel("beta")
 plt.ylabel("posterior probability distribution of beta")
 
-
-# how do the values of the slope & y-intercept compare with the MLE values from paramfit1.py?
-
-# how does the error on the slope & y-intercept compare with the value from the covariance matrix from paramfit1.py?
-
-# what happens to the values and uncertainties if you change the number of points in your data?
-
-# what happens if you change the grid spacing?
 
 

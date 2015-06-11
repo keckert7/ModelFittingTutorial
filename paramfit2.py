@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 """
-Created on Thu Feb 06 21:50:47 2014
-
-@author: sheila
+Part 2, third activity in Parameter Fitting Tutorial
+Modified by Katie Eckert from ASTR502 activity written by Sheila Kannappan
+June 24, 2015
 """
 
 import numpy as np
@@ -89,7 +88,8 @@ for i in xrange(gridsize1):  # loop over all possible values of alpha
         modelvals = alphaposs[i]*xvals+betaposs[j] # compute yfit for given model
         resids = (yvals - modelvals) # compute residuals for given grid model
         chisq = np.sum(resids**2 / errs**2) # compute chisq likelihood
-        priorval=(1.+betaposs[j]**2)**(-3./2.) # compute prior
+        priorval=1.    # uniform prior
+#        priorval=?.   # prior to compensate for unequal spacing of slope
          #lnlikes[i,j] = ? + ? 
 
 

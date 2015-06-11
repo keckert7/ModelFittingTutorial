@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 """
-Created on Wed May 20 21:00:00 2015
-
-@author: katie
+part II, fourth activity in Parameter Fitting Tutorial
+Solutions Written by Katie Eckert
+June 24, 2015
 """
 
 import numpy as np

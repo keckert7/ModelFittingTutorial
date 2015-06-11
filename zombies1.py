@@ -81,7 +81,7 @@ plt.clf()
 plt.plot(perhuman,time-np.polyval(p1,perhuman),'g*',markersize=15)
 plt.xlabel("percent human")
 plt.ylabel("residuals in time")
-redchisq1=np.sum((time-np.polyval(p1,perhuman))**2/err**2)*(1./(np.size(time)-np.size(p1)-1))
+redchisq1=np.sum((time-np.polyval(p1,perhuman))**2/err**2)*(1./(np.size(time))
 print("Reduced Chi^2 value of linear fit = %f" % (redchisq1))
 # how well does our fit describe the data?
 
@@ -113,9 +113,9 @@ plt.plot(perhuman,time-np.polyval(p4,perhuman),'y^',markersize=10)
 
 # 6. compute reduced chi^2 for higher order fits
 # (number degrees of freeom = Npoints-nparams-1)
-redchisq2=np.sum((time-np.polyval(p2,perhuman))**2/err**2)*(1./(np.size(time)-np.size(p2)-1))
-redchisq3=np.sum((time-np.polyval(p3,perhuman))**2/err**2)*(1./(np.size(time)-np.size(p3)-1))
-redchisq4=np.sum((time-np.polyval(p4,perhuman))**2/err**2)*(1./(np.size(time)-np.size(p4)-1))
+redchisq2=np.sum((time-np.polyval(p2,perhuman))**2/err**2)*(1./np.size(time))
+redchisq3=np.sum((time-np.polyval(p3,perhuman))**2/err**2)*(1./np.size(time))
+redchisq4=np.sum((time-np.polyval(p4,perhuman))**2/err**2)*(1./np.size(time))
 
 print("reduced Chi^2 values")
 print("1st order = %f" %redchisq1)
