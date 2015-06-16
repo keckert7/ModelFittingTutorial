@@ -7,7 +7,7 @@ June 24, 2015
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy as sp
-import scipy.stats as stat
+import scipy.stats as stats
 import numpy.random as npr
 import pylab
 pylab.ion()
@@ -40,7 +40,7 @@ plt.plot(xvals,yvals,'b*',markersize=10)
 # what are MLE values of slope and y-intercept?
 
 #print("slope = %f" %alphaest)
-#print("y-intecept = %f" %?)
+#print("y-intercept = %f" %?)
 
 # overplot the best fit solution
 #yfitvals=xvals*alphaest+betaest
