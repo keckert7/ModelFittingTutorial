@@ -6,13 +6,10 @@ June 24, 2015
 
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy as sp
-import scipy.stats as stats
 import numpy.random as npr
 import pylab
 pylab.ion()
 
-pi=np.pi
 
 #Generating fake data set to start with:
 alphatrue=2. # slope
@@ -52,6 +49,9 @@ plt.plot(xvals,yvals,'b*',markersize=10)
 
 #print("uncertainty on alpha is %0.7f" % (alphaunc))
 #print("uncertainty on beta is %0.7f" % (betaunc))
+
+#print("fractional uncertainty on alpha is %0.7f" % (alphaunc/alphaest))
+#print("fractional uncertainty on beta is %0.7f" % (betaunc/betaest))
 
 
 # solution using python solver np.polyfit

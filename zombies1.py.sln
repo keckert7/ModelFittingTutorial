@@ -6,13 +6,10 @@ June 24, 2015
 
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy as sp
-import scipy.stats as stats
 import numpy.random as npr
 import pylab
 pylab.ion()
 
-pi=np.pi
 
 # these are solutions to the Zombie MLE portion of the 
 # parameter fitting tutorial
@@ -45,7 +42,7 @@ plt.ylim(-15,15)
 
 # 2: linear MLE solution using python solver np.polyfit
 # third parameter is order of fit, 1 for linear
-p1=np.polyfit(perhuman,time,1) # returns highest power first 
+p1=np.polyfit(perhuman,time,1,w=(1./err)) # returns highest power first 
 
 # print out MLE slope & y-intercept
 print("slope = %f" %p1[0])
@@ -62,7 +59,7 @@ plt.plot(xval,np.polyval(p1,xval),'g+',markersize=10)
 # ydirection (time in this case), what if we wanted to minimize residuals 
 # in the x direction, i.e.,  perform the fit backwards
 
-p1b=np.polyfit(time,perhuman,1)
+p1b=np.polyfit(time,perhuman,1) # no error on percent human, only on time
 # in this case slope and y-intercept not direct, need to do some algebra
 print("slope = %f" %(1./p1b[0]))
 print("y-intercept = %f" %(-1.0*p1b[1]/p1b[0]))
@@ -70,7 +67,7 @@ print("when evaluated this way there's still time...")
 yval2=xval*(1./p1b[0])-(p1b[1]/p1b[0])
 plt.plot(xval,yval2,'r')
 
-# as you can see which way you fit makes a big difference - either there are no humans, or there's one more day until there are no more humans
+# as you can see which way you fit makes a big difference - either there are no humans, or there's one more day until there are no more humans. Since the quantity we want to predict is time, we must minimize the residuals in time to obtain the best prediction (dang, guess we are all zombies).
 
 # 4. Plot the residuals from the fit from part 2 & compute the reduced chi^2 
 #value of the fit 

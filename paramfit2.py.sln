@@ -6,13 +6,11 @@ June 24, 2015
 
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy as sp
-import scipy.stats as stats
 import numpy.random as npr
 import pylab
 pylab.ion()
 
-pi=np.pi
+
 
 # Generating fake data set (same as in paramfit1.py) to start with:
 alphatrue=2. # slope
