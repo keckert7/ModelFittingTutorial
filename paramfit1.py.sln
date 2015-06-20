@@ -11,69 +11,76 @@ import pylab
 pylab.ion()
 
 
-#Generating fake data set to start with:
+# Generating fake data set to start with:
 alphatrue=2. # slope
 betatrue=5.  # intercept
 errs=2.5 # sigma (amplitude of errors)
 
-narr=100. # number of data points
+narr=50. # number of data points, change to 10, 100
 xvals = np.arange(narr) + 1. # xvals range from 1-51
 yvals = alphatrue*xvals + betatrue+ npr.normal(0,errs,narr) # yvals 
-# what does npr.normal do? - adds scatter in y-direction from Gaussian distribution 
+# What does npr.normal do? - adds scatter in y-direction from Gaussian distribution 
 
-# plot fake data
+# Plot fake data
 plt.figure(1) 
 plt.clf()
 plt.plot(xvals,yvals,'b*',markersize=10)
+plt.xlabel("x-values")
+plt.ylabel("y-values")
 
-#determine slope & y-intercept using analytic solution from derivation sheet
+# Determine slope & y-intercept using analytic solution from derivation sheet
 
 alphaest=(np.mean(xvals)*np.mean(yvals)-np.mean(xvals*yvals)) / \
-   (np.mean(xvals)**2 -np.mean(xvals**2)) #  from derivation sheet
-betaest= np.mean(yvals)-alphaest*np.mean(xvals) # answer
+   (np.mean(xvals)**2 -np.mean(xvals**2)) #  from derivation
+betaest= np.mean(yvals)-alphaest*np.mean(xvals) # from derivation
 
-# what are best values of slope and y-intercept?
-print("slope = %f" %alphaest)
-print("y-intercept = %f" %betaest) # answer
+# What are best values of slope and y-intercept?
+print("analytical MLE slope = %f" %alphaest)
+print("analytical MLE y-intercept = %f" %betaest) 
 
-# overplot the best fit solution
+# Overplot the best fit solution
 yfitvals=xvals*alphaest+betaest
 plt.plot(xvals,yfitvals,'r')
 
-# compute analytic uncertainties on slope and y-intercept from derivation sheet
+# We assumed that the uncertainties on our data points are all the same
+
+# Compute analytic uncertainties on slope and y-intercept 
+
 # slope error - break up into pieces to keep simple
-inputa1=np.sum((yvals-(xvals*alphaest+betaest))**2.)
+inputa1=np.sum((yvals-yfitvals)**2.)
 inputa2=np.sum((xvals-np.mean(xvals))**2)
 inputa3=1./(narr-2.)
 alphaunc=np.sqrt(inputa3*inputa1/inputa2)
 
 inputb1=inputa3*inputa1 
 inputb2=(1./narr)
-inputb3=(np.mean(xvals)**2)/(np.sum((xvals-np.mean(xvals))**2))
+inputb3=(np.mean(xvals)**2)/(inputa2)
 betaunc=np.sqrt(inputb1*(inputb2+inputb3))
 
-print("uncertainty on alpha is %0.7f" % (alphaunc))
-print("uncertainty on beta is %0.7f" % (betaunc))
+print("analytical MLE uncertainty on alpha is %0.7f" % (alphaunc))
+print("analytical MLE uncertainty on beta is %0.7f" % (betaunc))
 
 print("fractional uncertainty on alpha is %0.7f" % (alphaunc/alphaest))
 print("fractional uncertainty on beta is %0.7f" % (betaunc/betaest))
 
 
-# solution using python solver np.polyfit
+# Solution using python solver np.polyfit
 # third parameter is order of fit, 1 for linear
 pfit=np.polyfit(xvals,yvals,1) # returns highest power first 
 
-print("slope = %f" %pfit[0])
-print("y-intercept = %f" %pfit[1])
+print("               ")
+print("np.polyfit MLE slope = %f" %pfit[0])
+print("np.polyfit MLE y-intercept = %f" %pfit[1])
 
-# Do you get the same result as in analytical case?
+# Do you get the same result as in analytical case? 
 print("analytical & np.polyfit slope & y-intercept values are equal to several decimal points")
 
 # Note that not all problems have analytical solutions like linear regression
 
-# can also obtain errors from the diagonal terms of the covariance
-# matrix, which is the inverse of the Hessian matrix given on derivation sheet
-# also computed in np.polyfit...
+# Can also obtain errors from the diagonal terms of the covariance
+# matrix, which is the inverse of the Hessian matrix (from your pre-reading) and
+# can be computed in np.polyfit by setting cov='True'
+
 
 pfit,covp=np.polyfit(xvals,yvals,1,cov='True') # returns highest power first
 # setting cov='True' returns the covariance matrix
@@ -86,8 +93,16 @@ print("intercept is %0.7f +- %0.7f" % (pfit[1], np.sqrt(covp[1,1])))
 # Are those errors the same as in analytical solution?
 print("analytical and np.polyfit uncertainty values give slightly different results")
 
-# What happens if you increase the number of points?
-# What happens if you decrease the number of points?
+# What happens to the uncertainties if you increase/decrease the number of points used in the fit (try N=100, N=10) ?
+print("               ")
+print("fractional uncertainty on slope for N=%f datapoints is %f" %(narr,alphaunc/alphaest))
+print("fractional uncertainty on y-int for N=%f datapoints is %f" %(narr,betaunc/betaest))
+# Uncertainties get smaller with increasing number of data points
 
+# What happens to the percentage difference between the analytical and numerical methods for computing the uncertanties if you increase/decrease the number of points (try N=100, N=10)?
+
+print("               ")
 print("relative difference in the slope uncertainties as percentage of slope value for N = %f data points is %f" % (narr, 100.*(np.sqrt(covp[0,0])-alphaunc)/alphaest))
 print("relative difference in the y-intercept uncertainties as percentage of y-intercept value for N = %f data points is %f" % (narr, 100.*(np.sqrt(covp[1,1])-betaunc)/betaest))
+
+# For larger N, the two values for the uncertainty converge. For small N, the numerically determined answer becomes different from the analytical solution 

@@ -10,24 +10,17 @@ import numpy.random as npr
 import pylab
 pylab.ion()
 
-
-# these are solutions to the Zombie Bayesian analysis portion of the 
-# parameter fitting tutorial
-# taking data on the % of humans after a wave of zombiism
-# power went out 5 days ago so you are trying to determine when zombies will take over
-
-# 1) read in data and plot
+# a) Read in data and plot
 datain=np.loadtxt("percentzombie.txt") # read in text file with data
 time=datain[:,0] # load in time
 perzombie=datain[:,1] # load in % zombies
 perhuman=100-perzombie # calculate % human = (1- % zombie)
-xval=np.arange(100) # setup dummy array of xvalues ranging from 0-100
 
 err=0.5 # assume some error on your measurement of time = half a day
 
 # check lengths of arrays
-print np.size(time)
-print np.size(perhuman)
+print("time array has %f elements" %np.size(time))
+print("percent human array has %f elements" %np.size(perhuman))
 
 
 plt.figure(1) 
@@ -40,13 +33,14 @@ plt.ylim(-15,15)
 
 
 # tryout Bayesian analysis
-testslope=np.arange(200)/100.-1
-testyint=np.arange(200)/2.-5
+# b) setup grids
+testslope=np.arange(200)/100.-1 # I chose -1 to 1
+testyint=np.arange(50)/2.-14 # I chose from -14 to 10 in steps of half days
 
 print("min/max slope are %f/%f" % (np.min(testslope),np.max(testslope)))
 print("min/max y-intercept are %f/%f" % (np.min(testyint),np.max(testyint)))
 
-# remember a flat grid space requires a prior = (1+beta^2)^(-3/2)
+# remember a flat grid space requires a prior = (1+slope^2)^(-3/2)
 
 lnlikeout=np.zeros((np.size(testslope),np.size(testyint)))
 for i in range(np.size(testslope)):
@@ -54,18 +48,18 @@ for i in range(np.size(testslope)):
         modeltime=perhuman*testslope[i]+testyint[j]
         residuals=time-modeltime
         chisq=np.sum((residuals)**2/err**2)
-        prior=(1.+testyint[j]**2)**(-3./2.)
+        prior=(1.+testslope[i]**2)**(-3./2.)
         lnlikeout[i,j]=-1.*chisq/2. + np.log(prior)
         
-# what is posterior likelihood distribution for time of 0% humans (or y-intercept)?
-
+# c) What is marginalized likelihood distribution for the time at which there are 0% humans?
+# marginalize over the slope to get the likelihood distribution for the y-intercept
 likeout=np.exp(lnlikeout)
 #marginalize over slope values to see y-intercept
-postdist_yint=np.sum(likeout,axis=0)/np.sum(likeout)
+marginalizedlike_yint=np.sum(likeout,axis=0)/np.sum(likeout)
 
 plt.figure(2)
 plt.clf()
-plt.plot(testyint,postdist_yint,'r*',markersize=10)
+plt.plot(testyint,marginalizedlike_yint,'r*',markersize=10)
 plt.ylim(0,1)
 plt.xlim(np.min(testyint),np.max(testyint))
 plt.xlabel("time to 0% humans")
@@ -74,12 +68,12 @@ plt.ylabel("likelihood")
 # zoom in
 plt.xlim(-5,5)
 
-# since I am not a Zombie yet, I can place a prior that 0% humans has not occured yet therefore my grid space should start today (0)
+# d) Since I am not a zombie yet, I can place a prior that 0% humans has not occured yet therefore my grid space should start tday and extend for 30 days
 
-testslope2=np.arange(200)/100.-1
-testyint2=np.arange(200)/2.
+testslope2=np.arange(200)/100.-1 # I chose -1 to 1
+testyint2=np.arange(60)/2.+1.0
 
-# remember a flat grid space requires a prior = (1+beta^2)^(-3/2)
+# remember a flat grid space requires a prior = (1+slope^2)^(-3/2)
 
 lnlikeout2=np.zeros((np.size(testslope2),np.size(testyint2)))
 for i in range(np.size(testslope2)):
@@ -87,12 +81,13 @@ for i in range(np.size(testslope2)):
         modeltime=perhuman*testslope2[i]+testyint2[j]
         residuals=time-modeltime
         chisq=np.sum((residuals)**2/err**2)
-        prior=(1.+testyint2[j]**2)**(-3./2.)
+        prior=(1.+testslope2[i]**2)**(-3./2.)
         lnlikeout2[i,j]=-1.*chisq/2. + np.log(prior)
 
 likeout2=np.exp(lnlikeout2)
 #marginalize over slope values to see y-intercept
-postdist_yint2=np.sum(likeout2,axis=0)/np.sum(likeout2)
+marginalizedlike_yint2=np.sum(likeout2,axis=0)/np.sum(likeout2)
 
-plt.plot(testyint2,postdist_yint2,'g.',markersize=10)
+plt.plot(testyint2,marginalizedlike_yint2,'g.',markersize=10)
 plt.ylim(0,1)
+
