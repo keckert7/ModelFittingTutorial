@@ -14,7 +14,7 @@ pylab.ion()
 # Generating fake data set (same as in paramfit1.py) to start with:
 alphatrue=2. # slope
 betatrue=5.  # intercept
-errs=2.5 # sigma (smplitude of errors)
+errs=2.5 # sigma (amplitude of errors)
 
 narr=50. # number of data points
 xvals = np.arange(narr) + 1.
@@ -121,6 +121,7 @@ plt.ylabel("marginalized likelihood distribution of slope")
 
 # zoom in on the region of significant probability
 # and estimate the error from the graph
+# Compare your error estimate with the error from paramfit1.py - are they similar? -if you compare similarly 
 
 
 # now marginalize over the slope to see the posterior distribution in y-intercept
