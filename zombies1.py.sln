@@ -20,13 +20,12 @@ time=datain[:,0] # load in time (today is Time=0, 14 days ago is Time=-14)
 perzombie=datain[:,1] # load in % zombies
 perhuman=100-perzombie # calculate % human = (1 - % zombie)
 
-#err=0.5 # error on your measurement of time = half a day
 
 # check lengths of arrays
 print("time array has %f elements" %np.size(time))
 print("percent human array has %f elements" %np.size(perhuman))
 
-# plot time as function of % human
+# plot % human as function of time
 plt.figure(1) 
 plt.clf()
 plt.plot(time,perhuman,'b*',markersize=10)
@@ -46,7 +45,7 @@ print("slope = %f" %p1[0])
 print("y-intercept = %f" %p1[1])
 print("y-intercept tells you % of humans alive today (time=0)")
 # evaluate best fit lines
-xval=np.arange(100)-15 # setup dummy array of xvalues ranging from 0-100
+xval=np.arange(30)-15 # setup dummy array of xvalues ranging from time = -15 to +15
 yval1=xval*p1[0]+p1[1]
 
 plt.plot(xval,yval1,'g') # overplot MLE solution in green
