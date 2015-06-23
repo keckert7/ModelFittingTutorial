@@ -20,7 +20,7 @@ time=datain[:,0] # load in time (today is Time=0, 14 days ago is Time=-14)
 perzombie=datain[:,1] # load in % zombies
 perhuman=100-perzombie # calculate % human = (1 - % zombie)
 
-err=0.5 # error on your measurement of time = half a day
+#err=0.5 # error on your measurement of time = half a day
 
 # check lengths of arrays
 print("time array has %f elements" %np.size(time))
@@ -29,65 +29,81 @@ print("percent human array has %f elements" %np.size(perhuman))
 # plot time as function of % human
 plt.figure(1) 
 plt.clf()
-plt.plot(perhuman,time,'b*',markersize=10)
+plt.plot(time,perhuman,'b*',markersize=10)
 # make labels
-plt.xlabel('% human')
-plt.ylabel('time') # Note time is on y-axis
+plt.xlabel('time') # x-axis is time
+plt.ylabel('% human') # y-axis is % human
 # set limits to show wider ranges
-plt.xlim(0,100)
-plt.ylim(-15,15)
+plt.xlim(-15,15)
+plt.ylim(0,100)
 
 # b) Compute MLE solution for a linear model using python solver np.polyfit
 # third parameter is order of fit, 1 for linear
-p1=np.polyfit(perhuman,time,1) # returns highest power first 
+p1=np.polyfit(time,perhuman,1) # returns highest power first 
 
 # print out MLE slope & y-intercept
 print("slope = %f" %p1[0])
 print("y-intercept = %f" %p1[1])
-print("uhoh you are already a zombie!")
+print("y-intercept tells you % of humans alive today (time=0)")
 # evaluate best fit lines
-xval=np.arange(100) # setup dummy array of xvalues ranging from 0-100
+xval=np.arange(100)-15 # setup dummy array of xvalues ranging from 0-100
 yval1=xval*p1[0]+p1[1]
 
 plt.plot(xval,yval1,'g') # overplot MLE solution in green
 # Note you can also use np.polyval to spit out the values so you don't have to write out the full function (helpful for higher order functions)
 
-plt.plot(xval,np.polyval(p1,xval),'g+',markersize=10)
+plt.plot(xval,np.polyval(p1,xval),'g',markersize=10)
 
 # c) Above we have performed the fit so as to minimize residuals in the 
-# y-direction (time in this case), what if we wanted to minimize residuals 
-# in the x direction, i.e.,  perform the fit backwards
+# y-direction (% human in this case), what if we wanted to minimize residuals 
+# in the x direction (time), i.e.,  perform the fit backwards
 # Can rewrite y=alphax+b -> x=(1/alpha)*y-(beta/alpha)
 
-p1b=np.polyfit(time,perhuman,1) # no error on percent human, only on time
+p1b=np.polyfit(perhuman,time,1) 
 # in this case slope and y-intercept not direct, need to do some algebra
 print("slope = %f" %(1./p1b[0]))
 print("y-intercept = %f" %(-1.0*p1b[1]/p1b[0]))
-print("when evaluated this way there's still time...")
+print("now says % of humans is negative as of today, so I am probably a zombie now")
 yval2=xval*(1./p1b[0])-(p1b[1]/p1b[0])
 plt.plot(xval,yval2,'r')
 
-# As you can see which way you fit makes a big difference - either there are no humans, or there's one more day until there are no more humans. Since the quantity we want to predict is time, we must minimize the residuals in time to obtain the best prediction (dang, guess we are all zombies).
+# As you can see which way you fit the data makes a big difference - today there could either be ~4% humans left or total zombification has already occured. Since the quantity we want to predict is the % of humans today, we must minimize the residuals in % humans (solution for part b): thus our best prediction at time=0 is that not everyone is a zombie yet.
 
-# d) Plot the residuals from the fit from part b & compute the reduced chi^2 
-# value of the fit 
-# we have assumed the error is ~ half a day)
+# d) Plot the residuals in % human from the fit from part b & compute the 
+# reduced chi^2  value of the fit. We have assumed the error on each 
+# measurement of the percentage of zombies is ~3%
 
+err=3.0 # error on percent human
+perhumanresids=perhuman-np.polyval(p1,time)
 plt.figure(2)
 plt.clf()
-plt.plot(perhuman,time-np.polyval(p1,perhuman),'g*',markersize=15)
-plt.xlabel("percent human")
-plt.ylabel("residuals in time")
-redchisq1=np.sum((time-np.polyval(p1,perhuman))**2/err**2)*(1./(np.size(time)))
+
+plt.plot(time,perhumanresids,'g*',markersize=15)
+plt.xlabel("time")
+plt.ylabel("residuals in % human")
+redchisq1=np.sum(perhumanresids**2/err**2)*(1./(np.size(perhuman)))
 print("Reduced Chi^2 value of linear fit = %f" % (redchisq1))
-# how well does our linear fit describe the data? -
+# how well does our linear fit describe the data? - large value, but small number of data points, useful to compare with other data
+
+# What happens if our error is over/underestimated?
+# try larger error
+erra=5.0
+redchisq1a=np.sum(perhumanresids**2/erra**2)*(1./(np.size(perhuman)))
+print("Reduced Chi^2 value of linear fit with uncertainty = %f percent is %f" % (erra,redchisq1a))
+
+# try smaller error
+errb=1.0
+redchisq1b=np.sum(perhumanresids**2/errb**2)*(1./(np.size(perhuman)))
+print("Reduced Chi^2 value of linear fit with uncertainty = %f percent is %f" % (errb,redchisq1b))
+
+# If our uncertainties are overestimated, the chi^2 value gets smaller (think our fit is better than it is), and if they are underestimated the chi^2 value gets larger (think our fit is worse than it is)
 
 
-# e) What happens if we use higher order fits?
+# e) What happens if we use higher order fits for % human vs. time?
 
-p2=np.polyfit(perhuman,time,2) #2nd order fit
-p3=np.polyfit(perhuman,time,3) #3rd order fit
-p4=np.polyfit(perhuman,time,4) #4th order fit
+p2=np.polyfit(time,perhuman,2) #2nd order fit
+p3=np.polyfit(time,perhuman,3) #3rd order fit
+p4=np.polyfit(time,perhuman,4) #4th order fit
 
 print("2nd order fit: y-intercept = %f" % p2[2])
 print("3nd order fit: y-intercept = %f" % p3[3])
@@ -101,17 +117,17 @@ print("oh wow these fits vary a lot, not sure if I trust them")
 
 # Overplot residuals on figure 2
 plt.figure(2)
-plt.plot(perhuman,time-np.polyval(p2,perhuman),'m+',markersize=10)
-plt.plot(perhuman,time-np.polyval(p3,perhuman),'c.',markersize=20)
-plt.plot(perhuman,time-np.polyval(p4,perhuman),'y^',markersize=10)
+plt.plot(time,perhuman-np.polyval(p2,time),'m+',markersize=10)
+plt.plot(time,perhuman-np.polyval(p3,time),'c.',markersize=20)
+plt.plot(time,perhuman-np.polyval(p4,time),'y^',markersize=10)
 
 # Residuals look better, but are these fits better?
 
 # f) Compute reduced chi^2 for higher order fits
 # 
-redchisq2=np.sum((time-np.polyval(p2,perhuman))**2/err**2)*(1./np.size(time))
-redchisq3=np.sum((time-np.polyval(p3,perhuman))**2/err**2)*(1./np.size(time))
-redchisq4=np.sum((time-np.polyval(p4,perhuman))**2/err**2)*(1./np.size(time))
+redchisq2=np.sum((perhuman-np.polyval(p2,time))**2/err**2)*(1./np.size(perhuman))
+redchisq3=np.sum((perhuman-np.polyval(p3,time))**2/err**2)*(1./np.size(perhuman))
+redchisq4=np.sum((perhuman-np.polyval(p4,time))**2/err**2)*(1./np.size(perhuman))
 
 print("reduced Chi^2 values")
 print("1st order = %f" %redchisq1)
@@ -119,4 +135,4 @@ print("2nd order = %f" %redchisq2)
 print("3rd order = %f" %redchisq3)
 print("4th order = %f" %redchisq4)
 
-# Even though the reduced Chi^2 value for the linear fit is > 1, the higher order polynomial fits are <1, indicating that they are overfitting the data. For N=10 data points, we must make sure not to increase the order of our fit too high. 
+# Even though the reduced Chi^2 value for the linear fit is > 1, the higher order polynomial fits are much smaller <1, indicating that they are overfitting the data. For N=10 data points, we must make sure not to increase the order of our fit too high. 

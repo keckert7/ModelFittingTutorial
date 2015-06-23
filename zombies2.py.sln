@@ -16,7 +16,7 @@ time=datain[:,0] # load in time
 perzombie=datain[:,1] # load in % zombies
 perhuman=100-perzombie # calculate % human = (1- % zombie)
 
-err=0.5 # assume some error on your measurement of time = half a day
+err=3.0 # assume 3% error on measurement of % zombies
 
 # check lengths of arrays
 print("time array has %f elements" %np.size(time))
@@ -25,34 +25,34 @@ print("percent human array has %f elements" %np.size(perhuman))
 
 plt.figure(1) 
 plt.clf()
-plt.plot(perhuman,time,'b*',markersize=10)
-plt.xlabel('% human')
-plt.ylabel('time')
-plt.xlim(0,100)
-plt.ylim(-15,15)
+plt.plot(time,perhuman,'b*',markersize=10)
+plt.xlabel('time')
+plt.ylabel('% human')
+plt.xlim(-15,15)
+plt.ylim(0,100)
 
 
 # tryout Bayesian analysis
 # b) setup grids
-testslope=np.arange(200)/100.-1 # I chose -1 to 1
-testyint=np.arange(50)/2.-14 # I chose from -14 to 10 in steps of half days
+testslope=np.arange(501)/100.-10 # I chose -10 to -5 in steps of 0.01 
+testyint=np.arange(101)/5.-4 # I chose from -4 to 16 in steps of 0.25
 
 print("min/max slope are %f/%f" % (np.min(testslope),np.max(testslope)))
 print("min/max y-intercept are %f/%f" % (np.min(testyint),np.max(testyint)))
 
-# remember a flat grid space requires a prior = (1+slope^2)^(-3/2)
+# Want to have a prior that compensates for the unequal spacing in angle (rather than flat on slope and y-intercept): prior = (1+slope^2)^(-3/2)
 
 lnlikeout=np.zeros((np.size(testslope),np.size(testyint)))
 for i in range(np.size(testslope)):
     for j in range(np.size(testyint)):
-        modeltime=perhuman*testslope[i]+testyint[j]
-        residuals=time-modeltime
+        modelperhuman=time*testslope[i]+testyint[j]
+        residuals=perhuman-modelperhuman
         chisq=np.sum((residuals)**2/err**2)
         prior=(1.+testslope[i]**2)**(-3./2.)
         lnlikeout[i,j]=-1.*chisq/2. + np.log(prior)
-        
-# c) What is marginalized likelihood distribution for the time at which there are 0% humans?
-# marginalize over the slope to get the likelihood distribution for the y-intercept
+        #print modelperhuman
+# c) What is marginalized likelihood distribution for the percentage of humans at t=0 (today)? This is the distribution of the y-intercept values, so we must marginalize over the slope to get the likelihood distribution for the y-intercept
+
 likeout=np.exp(lnlikeout)
 #marginalize over slope values to see y-intercept
 marginalizedlike_yint=np.sum(likeout,axis=0)/np.sum(likeout)
@@ -60,34 +60,36 @@ marginalizedlike_yint=np.sum(likeout,axis=0)/np.sum(likeout)
 plt.figure(2)
 plt.clf()
 plt.plot(testyint,marginalizedlike_yint,'r*',markersize=10)
-plt.ylim(0,1)
 plt.xlim(np.min(testyint),np.max(testyint))
-plt.xlabel("time to 0% humans")
+plt.xlabel("% of humans at t=0 (today)")
 plt.ylabel("likelihood")
 
-# zoom in
-plt.xlim(-5,5)
+# likely ~5% humans still left as of today
 
-# d) Since I am not a zombie yet, I can place a prior that 0% humans has not occured yet therefore my grid space should start tday and extend for 30 days
 
-testslope2=np.arange(200)/100.-1 # I chose -1 to 1
-testyint2=np.arange(60)/2.+1.0
+# d) Since I am not a zombie yet, I can place a prior that total zombification (0% human) has not occured yet therefore my y-intercept grid space should start with at least 1% human left
+
+testslope2=np.arange(501)/100.-10 # I chose -10 to -5 in steps of 0.01 
+testyint2=np.arange(101)/5.+1.0 # I chose from 1 to 20 in steps of 0.25
+
 
 # remember a flat grid space requires a prior = (1+slope^2)^(-3/2)
 
 lnlikeout2=np.zeros((np.size(testslope2),np.size(testyint2)))
 for i in range(np.size(testslope2)):
     for j in range(np.size(testyint2)):
-        modeltime=perhuman*testslope2[i]+testyint2[j]
-        residuals=time-modeltime
+        modelperhuman=time*testslope2[i]+testyint2[j]
+        residuals=perhuman-modelperhuman
         chisq=np.sum((residuals)**2/err**2)
         prior=(1.+testslope2[i]**2)**(-3./2.)
-        lnlikeout2[i,j]=-1.*chisq/2. + np.log(prior)
+        lnlikeout2[i,j]=-1.*chisq/2. + np.log(prior)#
 
 likeout2=np.exp(lnlikeout2)
 #marginalize over slope values to see y-intercept
 marginalizedlike_yint2=np.sum(likeout2,axis=0)/np.sum(likeout2)
 
 plt.plot(testyint2,marginalizedlike_yint2,'g.',markersize=10)
-plt.ylim(0,1)
 
+# Now the distribution is truncated at % of humans = 1 and the likelihoods are renormalized.
+
+# The Bayesian likelihood distribution agrees with the MLE value for the % of humans at t=0 (~4.9), as it peaks somewhere near 5 (although we see there is a quite wide distribution from the Bayesian analysis).
