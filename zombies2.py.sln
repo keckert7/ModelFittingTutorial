@@ -42,54 +42,56 @@ print("min/max y-intercept are %f/%f" % (np.min(testyint),np.max(testyint)))
 
 # Want to have a prior that compensates for the unequal spacing in angle (rather than flat on slope and y-intercept): prior = (1+slope^2)^(-3/2)
 
-lnlikeout=np.zeros((np.size(testslope),np.size(testyint)))
-for i in range(np.size(testslope)):
-    for j in range(np.size(testyint)):
-        modelperhuman=time*testslope[i]+testyint[j]
-        residuals=perhuman-modelperhuman
-        chisq=np.sum((residuals)**2/err**2)
-        prior=(1.+testslope[i]**2)**(-3./2.)
-        lnlikeout[i,j]=-1.*chisq/2. + np.log(prior)
-        #print modelperhuman
-# c) What is marginalized likelihood distribution for the percentage of humans at t=0 (today)? This is the distribution of the y-intercept values, so we must marginalize over the slope to get the likelihood distribution for the y-intercept
+lnpostprobout=np.zeros((np.size(testslope),np.size(testyint))) # setup array to hold posterior probabilities
+for i in range(np.size(testslope)): # range over all slope
+    for j in range(np.size(testyint)): # range over all y-intercepts
+        modelperhuman=time*testslope[i]+testyint[j] # compute % human fit values for each model
+        residuals=perhuman-modelperhuman # compute residuals
+        chisq=np.sum((residuals)**2/err**2) # compute chi^2 for particular model
+        prior=(1.+testslope[i]**2)**(-3./2.) # compute prior for particular model
+        lnpostprobout[i,j]=-1.*chisq/2. + np.log(prior) # compute posterior probability for given model
 
-likeout=np.exp(lnlikeout)
-#marginalize over slope values to see y-intercept
-marginalizedlike_yint=np.sum(likeout,axis=0)/np.sum(likeout)
+# c) What is marginalized posterior probability distribution for the percentage of humans at t=0 (today)? We need the marginalized posterior probability distribution of the y-intercept, so we must marginalize over the slope
+
+postprobout=np.exp(lnpostprobout)
+# Marginalize over slope values to see y-intercept posterior distribution
+
+marginalizedpprob_yint=np.sum(postprobout,axis=0)/np.sum(postprobout)
 
 plt.figure(2)
 plt.clf()
-plt.plot(testyint,marginalizedlike_yint,'r*',markersize=10)
+plt.plot(testyint,marginalizedpprob_yint,'r*',markersize=10)
 plt.xlim(np.min(testyint),np.max(testyint))
-plt.xlabel("% of humans at t=0 (today)")
-plt.ylabel("likelihood")
+plt.xlabel("% of humans alive today (t=0)")
+plt.ylabel("marginalized posterior probability of % of humans alive today")
 
 # likely ~5% humans still left as of today
 
 
-# d) Since I am not a zombie yet, I can place a prior that total zombification (0% human) has not occured yet therefore my y-intercept grid space should start with at least 1% human left
+# d) Since I am not a zombie yet, I can place a prior that total zombification (0% human) has not occured yet therefore I set my y-intercept grid space to start with at least 1% human left
 
 testslope2=np.arange(501)/100.-10 # I chose -10 to -5 in steps of 0.01 
 testyint2=np.arange(101)/5.+1.0 # I chose from 1 to 20 in steps of 0.25
 
 
-# remember a flat grid space requires a prior = (1+slope^2)^(-3/2)
+# Use the prior that compensates for the unequal angular spacing 
+# prior = (1+slope^2)^(-3/2)
 
-lnlikeout2=np.zeros((np.size(testslope2),np.size(testyint2)))
+lnpostprobout2=np.zeros((np.size(testslope2),np.size(testyint2)))
 for i in range(np.size(testslope2)):
     for j in range(np.size(testyint2)):
         modelperhuman=time*testslope2[i]+testyint2[j]
         residuals=perhuman-modelperhuman
         chisq=np.sum((residuals)**2/err**2)
         prior=(1.+testslope2[i]**2)**(-3./2.)
-        lnlikeout2[i,j]=-1.*chisq/2. + np.log(prior)#
+        lnpostprobout2[i,j]=-1.*chisq/2. + np.log(prior)#
 
-likeout2=np.exp(lnlikeout2)
+postprobout2=np.exp(lnpostprobout2)
 #marginalize over slope values to see y-intercept
-marginalizedlike_yint2=np.sum(likeout2,axis=0)/np.sum(likeout2)
+marginalizedpprob_yint2=np.sum(postprobout2,axis=0)/np.sum(postprobout2)
 
-plt.plot(testyint2,marginalizedlike_yint2,'g.',markersize=10)
+plt.plot(testyint2,marginalizedpprob_yint2,'g.',markersize=10)
 
-# Now the distribution is truncated at % of humans = 1 and the likelihoods are renormalized.
+# Now the marginalized posterior probability distribution is truncated at % of humans = 1 and the probabilities ~5% are larger than in the original y-intercept posterior probability distribution
 
-# The Bayesian likelihood distribution agrees with the MLE value for the % of humans at t=0 (~4.9), as it peaks somewhere near 5 (although we see there is a quite wide distribution from the Bayesian analysis).
+# The marginalized posterior probability distribution for the % of humans left today (time=0) agrees with the MLE value for the % of humans at t=0 (~4.9%), as the distribution peaks near 5 (although we see there is a quite wide distribution from the Bayesian analysis).

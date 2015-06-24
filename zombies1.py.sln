@@ -84,16 +84,15 @@ redchisq1=np.sum(perhumanresids**2/err**2)*(1./(np.size(perhuman)))
 print("Reduced Chi^2 value of linear fit = %f" % (redchisq1))
 # how well does our linear fit describe the data? - large value, but small number of data points, useful to compare with other data
 
-# What happens if our error is over/underestimated?
-# try larger error
-erra=5.0
+# What happens if our error is underestimated?
+erra=5.0 # what if 3% is an underestimate and the errors are really 5%
 redchisq1a=np.sum(perhumanresids**2/erra**2)*(1./(np.size(perhuman)))
-print("Reduced Chi^2 value of linear fit with uncertainty = %f percent is %f" % (erra,redchisq1a))
+print("Reduced Chi^2 value of linear fit with uncertainty = %f percent is %f" % (erra,redchisq1a)) # so we would have overestimated the reduced Chi^2
 
-# try smaller error
-errb=1.0
+# What happens if our error is overestimated?
+errb=1.0 # whatif 3% is an overestimate and the errors are really 1%
 redchisq1b=np.sum(perhumanresids**2/errb**2)*(1./(np.size(perhuman)))
-print("Reduced Chi^2 value of linear fit with uncertainty = %f percent is %f" % (errb,redchisq1b))
+print("Reduced Chi^2 value of linear fit with uncertainty = %f percent is %f" % (errb,redchisq1b)) # so we would have underestimated the reduced chi^2 value
 
 # If our uncertainties are overestimated, the chi^2 value gets smaller (think our fit is better than it is), and if they are underestimated the chi^2 value gets larger (think our fit is worse than it is)
 
